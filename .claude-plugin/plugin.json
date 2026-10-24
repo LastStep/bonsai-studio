@@ -1,0 +1,9 @@
+{
+  "name": "studio",
+  "description": "The studio's part of a project, as a Bonsai pack: twelve walls on the studio's home (~/.trinetra: its token, deploy key and salt), how an agent's question reaches the studio's Desk, and the daily brief.",
+  "author": {
+    "name": "Trinetra"
+  },
+  "repository": "https://github.com/LastStep/bonsai-studio",
+  "license": "MIT"
+}
