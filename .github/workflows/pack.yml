@@ -59,7 +59,7 @@ jobs:                                        # check, validate, then release
         working-directory: pack              # in the pack's checkout
         run: sh ci/check.sh check "../bonsai$(go env GOEXE)" . . "$GITHUB_SHA"   # the commit being checked
 
-      - name: Check the twelve walls         # ci/check.sh deny: pack.yaml's deny list is the twelve, rule for rule
+      - name: Check the fifteen walls        # ci/check.sh deny: pack.yaml's deny list is the fifteen, rule for rule
         working-directory: pack              # in the pack's checkout
         run: sh ci/check.sh deny .           # on the pack's top
 

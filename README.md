@@ -5,11 +5,12 @@ the layer above a person's projects: it lists them, reads each project's Bonsai 
 keeps a home of its own on each machine, `~/.trinetra`, with the keys it works with. This pack holds what a project
 needs from that studio:
 
-- **Twelve walls**: deny rules that stop agents reading the three secrets in the studio's home: `token` (the key the
-  studio's bridge uses to reach its server), `deploy_ed25519` (the key that deploys the server) and `salt` (the key of
-  every input hash the studio records). Each is spelled four ways, for the four ways one machine reaches that home:
-  this home (`~/.trinetra/`), the Windows home from WSL (`//mnt/c/Users/*/.trinetra/`), and a WSL home from Windows
-  by its two network names (`//wsl.localhost/*/home/*/.trinetra/`, `//wsl$/*/home/*/.trinetra/`).
+- **Fifteen walls**: deny rules that stop agents reading the three secrets in the studio's home: `token` (the key
+  the studio's bridge uses to reach its server), `deploy_ed25519` (the key that deploys the server) and `salt` (the key
+  of every input hash the studio records). Each is spelled five ways, for the five ways one machine reaches that home:
+  this home (`~/.trinetra/`), the Windows home from WSL (`//mnt/c/Users/*/.trinetra/`), a WSL home from Windows by its
+  two network names (`//wsl.localhost/*/home/*/.trinetra/`, `//wsl$/*/home/*/.trinetra/`), and a WSL home through
+  WSLg's mount of it (`//mnt/wslg/distro/home/*/.trinetra/`), which a hand trial found reaches the real home.
 - **Two skills**: `studio:desk-asks` (how a question for the person reaches the Desk through `bonsai ask`) and
   `studio:brief` (the daily brief, and its template).
 - **One document kind**, `brief`, the daily brief, with its template in `studio:brief`.
@@ -45,14 +46,14 @@ packs:
     roles: null                       # the pack declares no roles
 ```
 
-then runs `bonsai update`, which previews every change: the twelve walls, each with its sentence, the block, and the
+then runs `bonsai update`, which previews every change: the fifteen walls, each with its sentence, the block, and the
 kind `brief`. The project's `bonsai.yaml` gives `brief` a folder under `documents` (`work/briefs` unless it names
 another). Moving to a newer release is a person's step: change `ref`, then run `bonsai update`.
 
 **The walls are tried by hand once on each machine.** A wall that does not hold prints the secret into a session's
 transcript, so no agent tries one. The person runs, in a session in a linked project, a read of each spelling that
 applies to the machine and sees it refused, for example in WSL: ask Claude Code to read `~/.trinetra/salt`, then
-`/mnt/c/Users/<name>/.trinetra/salt`; on Windows: `\\wsl.localhost\<distro>\home\<name>\.trinetra\salt` and
+`/mnt/c/Users/<name>/.trinetra/salt` and `/mnt/wslg/distro/home/<name>/.trinetra/salt`; on Windows: `\\wsl.localhost\<distro>\home\<name>\.trinetra\salt` and
 `\\wsl$\<distro>\home\<name>\.trinetra\salt`. `salt` is the one to try: it is the least sensitive of the three.
 
 ## The folder
@@ -61,7 +62,7 @@ applies to the machine and sees it refused, for example in WSL: ask Claude Code 
 |---|---|
 | `.claude-plugin/plugin.json` | The plugin manifest Claude Code reads. JSON holds no comments, so it is documented here, under "plugin.json" |
 | `skills/` | The pack's skills, one folder each with its `SKILL.md`, to the open Agent Skills standard; a skill loads as `studio:<name>` |
-| `bonsai/pack.yaml` | The Bonsai manifest (format `bonsai.pack/1`): id, version, needs, the block, the twelve walls and the kind `brief`. A `#` comment on every key documents it |
+| `bonsai/pack.yaml` | The Bonsai manifest (format `bonsai.pack/1`): id, version, needs, the block, the fifteen walls and the kind `brief`. A `#` comment on every key documents it |
 | `bonsai/block.md` | The pack's two lines in the project's `CLAUDE.md`; its leading comment documents it |
 | `ci/check.sh` | Every check the pack has, in one script; its header documents each subcommand and argument |
 | `.github/workflows/pack.yml` | The pack's CI and release, calling `ci/check.sh`. A `#` comment on every key |
@@ -127,7 +128,7 @@ Every file the pack ships says its purpose, when to use it, and every field.
   rows against `skills/`; a scratch project linked to the pack at the commit, with `claude` off the PATH and a
   temporary Bonsai home; `bonsai check` there. Locally, from the pack's top, on committed work:
   `sh ci/check.sh check "$(command -v bonsai)" . . "$(git rev-parse HEAD)"`.
-- `sh ci/check.sh deny <folder>`: `pack.yaml`'s deny list is exactly the twelve walls, none missing, none extra, none
+- `sh ci/check.sh deny <folder>`: `pack.yaml`'s deny list is exactly the fifteen walls, none missing, none extra, none
   twice.
 - `sh ci/check.sh validate <folder>`: `claude plugin validate --json`, failing on every error and warning but the
   missing `version`. It needs no Claude login.

@@ -1,6 +1,6 @@
 # bonsai/pack.yaml: the studio pack's Bonsai manifest, format bonsai.pack/1. Bonsai's engine reads it when a project
 # links the pack (bonsai init, bonsai update) and when the pack's CI runs bonsai check --pack; Claude Code never reads
-# it. It says who the pack is, what a machine needs, what the engine writes into a project (the twelve walls on the
+# it. It says who the pack is, what a machine needs, what the engine writes into a project (the fifteen walls on the
 # studio's home, ~/.trinetra) and what the pack declares (the document kind brief). It carries no code: no hook line
 # and no file the engine writes. Every key carries its comment, at its line's end or on the line just above;
 # bonsai check --pack fails a key without one. Every field's full meaning, type and allowed values:
@@ -22,10 +22,11 @@ needs:                                # what a machine needs for the pack; bonsa
 block: block.md
 files: []                             # no files: the pack writes nothing into a project but its block and walls
 hooks: []                             # no hook lines: the pack carries no code that runs, so it links with --yes alone
-# deny: the twelve walls on the studio's home, ~/.trinetra: its token (the bridge's key to the server), its deploy key
-# and its salt (the key of every input hash), each spelled four ways, for the four ways one machine reaches that home:
-# this home (~/), the Windows home from WSL (//mnt/c/Users/*/), and WSL's home from Windows by its two network names
-# (//wsl.localhost/ and //wsl$/). ci/check.sh deny holds this list to the twelve, rule for rule
+# deny: the fifteen walls on the studio's home, ~/.trinetra: its token (the bridge's key to the server), its deploy
+# key and its salt (the key of every input hash), each spelled five ways, for the five ways one machine reaches that
+# home: this home (~/), the Windows home from WSL (//mnt/c/Users/*/), WSL's home from Windows by its two network names
+# (//wsl.localhost/ and //wsl$/), and WSL's home through WSLg's mount of it (//mnt/wslg/distro/home/*/; a hand trial
+# on 24 Oct 2026 found it reaches the real home). ci/check.sh deny holds this list to the fifteen, rule for rule
 deny:
   - rule: "Read(~/.trinetra/token)"                                   # this home
     why: "Agents cannot read the token kept in ~/.trinetra/token."   # the preview's sentence
@@ -51,6 +52,12 @@ deny:
     why: "Agents on Windows cannot read a WSL home's .trinetra/deploy_ed25519 through wsl$."   # the preview's sentence
   - rule: "Read(//wsl$/*/home/*/.trinetra/salt)"                      # WSL's home, from Windows (wsl$)
     why: "Agents on Windows cannot read a WSL home's .trinetra/salt through wsl$."   # the preview's sentence
+  - rule: "Read(//mnt/wslg/distro/home/*/.trinetra/token)"            # WSL's home, through WSLg's mount
+    why: "Agents in WSL cannot read the home's .trinetra/token through WSLg's mount, /mnt/wslg/distro."   # the preview's sentence
+  - rule: "Read(//mnt/wslg/distro/home/*/.trinetra/deploy_ed25519)"   # WSL's home, through WSLg's mount
+    why: "Agents in WSL cannot read the home's .trinetra/deploy_ed25519 through WSLg's mount, /mnt/wslg/distro."   # the preview's sentence
+  - rule: "Read(//mnt/wslg/distro/home/*/.trinetra/salt)"             # WSL's home, through WSLg's mount
+    why: "Agents in WSL cannot read the home's .trinetra/salt through WSLg's mount, /mnt/wslg/distro."   # the preview's sentence
 # documents: the one document kind the pack declares, the daily brief, with its template in skill studio:brief. A
 # project keeps its place in its bonsai.yaml's documents, under the kind's name. Only one linked pack may declare a
 # kind (the engine refuses two), so a project takes this pack with a workflow pack that no longer declares brief

@@ -39,11 +39,12 @@
 #     <folder>  the pack's folder on disk
 #
 #   sh ci/check.sh deny <folder>
-#     The walls check, this pack's own: bonsai/pack.yaml's deny rules are exactly the twelve below, rule for rule, in
-#     any order, none missing, none extra and none twice: the studio home's token, deploy_ed25519 and salt, each
-#     spelled the four ways one machine reaches that home (~/.trinetra/, //mnt/c/Users/*/.trinetra/,
-#     //wsl.localhost/*/home/*/.trinetra/, //wsl$/*/home/*/.trinetra/). They were Bonsai's workflow pack's until it
-#     dropped them (Bonsai commit 6f8783ea, 22 Oct 2026); a change to the list is a change to this script as well.
+#     The walls check, this pack's own: bonsai/pack.yaml's deny rules are exactly the fifteen below, rule for rule,
+#     in any order, none missing, none extra and none twice: the studio home's token, deploy_ed25519 and salt, each
+#     spelled the five ways one machine reaches that home (~/.trinetra/, //mnt/c/Users/*/.trinetra/,
+#     //wsl.localhost/*/home/*/.trinetra/, //wsl$/*/home/*/.trinetra/, //mnt/wslg/distro/home/*/.trinetra/). The
+#     first twelve were Bonsai's workflow pack's until it dropped them (Bonsai commit 6f8783ea, 22 Oct 2026); the WSLg
+#     three were added after a hand trial on 24 Oct 2026. A change to the list is a change to this script as well.
 #     It reads each "- rule:" line under deny:, so each rule stays quoted on its own line.
 #     <folder>  the pack's folder on disk
 #
@@ -229,10 +230,11 @@ validate() {
 	echo "ok: only the missing version"
 }
 
-# walls prints the twelve rules the deny check holds pack.yaml to, one a line.
+# walls prints the fifteen rules the deny check holds pack.yaml to, one a line.
 walls() {
 	# shellcheck disable=SC2088 # the tilde is the rule's own spelling, never a path to expand
-	for home in '~/.trinetra' '//mnt/c/Users/*/.trinetra' '//wsl.localhost/*/home/*/.trinetra' '//wsl$/*/home/*/.trinetra'; do
+	for home in '~/.trinetra' '//mnt/c/Users/*/.trinetra' '//wsl.localhost/*/home/*/.trinetra' '//wsl$/*/home/*/.trinetra' \
+		'//mnt/wslg/distro/home/*/.trinetra'; do
 		for f in token deploy_ed25519 salt; do
 			printf 'Read(%s/%s)\n' "$home" "$f"
 		done
@@ -242,20 +244,20 @@ walls() {
 deny() {
 	[ $# -eq 1 ] || usage
 	[ -f "$1/bonsai/pack.yaml" ] || fail "$1 holds no bonsai/pack.yaml: give the pack's folder"
-	echo "== deny: bonsai/pack.yaml's walls against the twelve"
+	echo "== deny: bonsai/pack.yaml's walls against the fifteen"
 	# the "- rule:" lines between the top-level deny: key and the next top-level key
 	got=$(tr -d '\r' <"$1/bonsai/pack.yaml" | sed -n '/^deny:/,/^[a-z]/p' | sed -n 's/^[ ]*- rule:[ ]*"\([^"]*\)".*/\1/p' | sort)
 	want=$(walls | sort)
 	dups=$(printf '%s\n' "$got" | uniq -d)
 	[ -z "$dups" ] || fail "a rule is listed twice: $dups"
 	missing=$(printf '%s\n' "$want" | while IFS= read -r r; do printf '%s\n' "$got" | grep -qxF "$r" || printf '  missing: %s\n' "$r"; done)
-	extra=$(printf '%s\n' "$got" | while IFS= read -r r; do [ -n "$r" ] || continue; printf '%s\n' "$want" | grep -qxF "$r" || printf '  not one of the twelve: %s\n' "$r"; done)
-	[ -z "$missing$extra" ] || fail "the deny list is not the twelve walls:
+	extra=$(printf '%s\n' "$got" | while IFS= read -r r; do [ -n "$r" ] || continue; printf '%s\n' "$want" | grep -qxF "$r" || printf '  not one of the fifteen: %s\n' "$r"; done)
+	[ -z "$missing$extra" ] || fail "the deny list is not the fifteen walls:
 $missing${missing:+${extra:+
 }}$extra"
 	n=$(printf '%s\n' "$got" | grep -c .)
-	[ "$n" -eq 12 ] || fail "the deny list holds $n rules, not 12"
-	echo "ok: the twelve, each once"
+	[ "$n" -eq 15 ] || fail "the deny list holds $n rules, not 15"
+	echo "ok: the fifteen, each once"
 }
 
 release() {
